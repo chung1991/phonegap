@@ -1,0 +1,9 @@
+div, header {
+    display: none;
+    visibility: hidden;
+}
+
+div#map {
+    display: none; !important;
+    visibility: hidden; !important;
+}
