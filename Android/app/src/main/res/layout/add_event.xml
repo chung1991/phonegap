@@ -1,0 +1,76 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mycl">
+
+    <EditText
+        android:id="@+id/edtTitle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/table_height"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/custom_border"
+        android:hint="Title "
+        android:paddingLeft="15dp"
+        android:textColor="@color/text"
+        android:textSize="15dp" />
+
+    <EditText
+        android:id="@+id/edtTime"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/table_height"
+        android:layout_below="@+id/edtTitle"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_border"
+        android:gravity="center_vertical"
+        android:hint="Time"
+        android:paddingLeft="15dp"
+        android:textColor="@color/text"
+        android:textSize="15dp" />
+
+    <EditText
+        android:id="@+id/edtDate"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/table_height"
+        android:layout_below="@+id/edtTime"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_border"
+        android:gravity="center_vertical"
+        android:hint="Date"
+        android:paddingLeft="15dp"
+        android:textColor="@color/text"
+        android:textSize="15dp" />
+
+    <EditText
+        android:id="@+id/edtLocation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/table_height"
+        android:layout_below="@+id/edtDate"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_border"
+        android:gravity="center_vertical"
+        android:hint="Location"
+        android:paddingLeft="15dp"
+        android:textColor="@color/text"
+        android:textSize="15dp" />
+
+    <Button
+        android:id="@+id/okButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edtLocation"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/custom_border"
+        android:gravity="center"
+        android:text="OK"
+        android:textColor="@android:color/holo_orange_dark" />
+</RelativeLayout>
