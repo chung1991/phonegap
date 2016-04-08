@@ -6,16 +6,22 @@ import java.io.Serializable;
 
 import maddiscovery.greenwich.com.maddiscovery.Interfaces.iPlace;
 
-/**
- * Created by Himura on 2016/03/16.
- */
 public class TheEvent implements Serializable, iPlace {
     private int id;
     private String title;
     private String time;
     private String location;
-    private boolean ischeck;
+    private boolean ischeck; // refactor later
     private LatLng position;
+    private String org;
+
+    public String getOrg() {
+        return org;
+    }
+
+    public void setOrg(String org) {
+        this.org = org;
+    }
 
     public int getId() {
         return id;

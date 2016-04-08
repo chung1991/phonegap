@@ -6,12 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import com.google.android.gms.maps.model.LatLng;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import maddiscovery.greenwich.com.maddiscovery.Entity.TheEvent;
-
 
 public class EventDao {
     private static final String DB_NAME = "MadDiscovery";
@@ -20,12 +17,13 @@ public class EventDao {
     private static final String CL_ID = "id";
     private static final String CL_TITLE = "title";
     private static final String CL_TIME = "time";
-    private static final String CL_CONTENT = "content";
+    private static final String CL_LOC = "loc";
+    private static final String CL_ORG = "org";
     private static final String CL_LAT = "lat";
     private static final String CL_LON = "lon";
 
     private static Context context;
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
     private static EventDao sInstance;
     private OpenHelper openHelper;
 
@@ -36,7 +34,6 @@ public class EventDao {
 
     public static void init(Context context) {
         if (sInstance != null) {
-
         }
         sInstance = new EventDao(context);
     }
@@ -47,7 +44,6 @@ public class EventDao {
         }
         return sInstance;
     }
-
 
     private EventDao open() throws SQLException {
         if (openHelper != null) {
@@ -63,14 +59,15 @@ public class EventDao {
 
     }
 
-    public long createData(String title, String time, String content, String lat, String lon) {
+    public long createData(String title, String time, String loc, String org, String lat, String lon) {
         long result = -1;
         try {
             open();
             ContentValues data = new ContentValues();
             data.put(CL_TITLE, title);
             data.put(CL_TIME, time);
-            data.put(CL_CONTENT, content);
+            data.put(CL_LOC, loc);
+            data.put(CL_ORG, org);
             data.put(CL_LAT, lat);
             data.put(CL_LON, lon);
 
@@ -106,7 +103,8 @@ public class EventDao {
                 theEvent.setTitle(c.getString(1));
                 theEvent.setTime(c.getString(2));
                 theEvent.setLocation(c.getString(3));
-                LatLng mPosition = new LatLng(Double.parseDouble(c.getString(4)), Double.parseDouble(c.getString(5)));
+                theEvent.setOrg(c.getString(4));
+                LatLng mPosition = new LatLng(Double.parseDouble(c.getString(5)), Double.parseDouble(c.getString(6)));
                 theEvent.setPosition(mPosition);
                 result = theEvent;
             }
@@ -118,13 +116,14 @@ public class EventDao {
         return result;
     }
 
-    public void updateData(String title, String time, String content, int id) {
+    public void updateData(String title, String time, String loc, String org, int id) {
         try {
             open();
             ContentValues data = new ContentValues();
             data.put(CL_TITLE, title);
             data.put(CL_TIME, time);
-            data.put(CL_CONTENT, content);
+            data.put(CL_LOC, loc);
+            data.put(CL_ORG, org);
             db.update(DB_TABLE, data, CL_ID + "=?", new String[]{String.valueOf(id)});
             close();
         } catch (SQLException e) {
@@ -136,7 +135,7 @@ public class EventDao {
         ArrayList<TheEvent> result = new ArrayList<>();
         try {
             open();
-            Cursor c = db.query(DB_TABLE, null, null, null, null, null, null);
+            Cursor c = db.query(DB_TABLE, null, null, null, null, null, null, null);
             c.moveToFirst();
             while (c.isAfterLast() == false) {
                 TheEvent theEvent = new TheEvent();
@@ -144,7 +143,8 @@ public class EventDao {
                 theEvent.setTitle(c.getString(1));
                 theEvent.setTime(c.getString(2));
                 theEvent.setLocation(c.getString(3));
-                LatLng mPosition = new LatLng(Double.parseDouble(c.getString(4)), Double.parseDouble(c.getString(5)));
+                theEvent.setOrg(c.getString(4));
+                LatLng mPosition = new LatLng(Double.parseDouble(c.getString(5)), Double.parseDouble(c.getString(6)));
                 theEvent.setPosition(mPosition);
                 result.add(theEvent);
                 c.moveToNext();
@@ -169,7 +169,8 @@ public class EventDao {
                             + CL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                             + CL_TITLE + " TEXT, "
                             + CL_TIME + " TEXT, "
-                            + CL_CONTENT + " TEXT, "
+                            + CL_LOC + " TEXT, "
+                            + CL_ORG + " TEXT, "
                             + CL_LAT + " TEXT, "
                             + CL_LON + " TEXT);"
             );

@@ -6,18 +6,13 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TimePicker;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -29,7 +24,6 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Calendar;
 
 import maddiscovery.greenwich.com.maddiscovery.Dao.EventDao;
-import maddiscovery.greenwich.com.maddiscovery.Fragment.AddEventFragment;
 
 public class AddEventActivity extends AppCompatActivity implements View.OnClickListener {
     private LatLng edtPosition;
@@ -39,6 +33,7 @@ public class AddEventActivity extends AppCompatActivity implements View.OnClickL
     private EditText edtDate;
     private EditText edtLocation;
     private Button okButton;
+    private EditText editOrganizer;
 
     private static final int PLACE_PICKER_REQUEST = 1;
     private LatLng currentLocation;
@@ -51,14 +46,15 @@ public class AddEventActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        this.edtTitle = (EditText) findViewById(R.id.edtTitle);
-        this.edtTime = (EditText) findViewById(R.id.edtTime);
+        this.edtTitle = (EditText) findViewById(R.id.editTitle);
+        this.editOrganizer = (EditText) findViewById(R.id.editOrg);
+        this.edtTime = (EditText) findViewById(R.id.editTime);
         this.edtTime.setInputType(InputType.TYPE_NULL);
         this.edtTime.setOnClickListener(this);
-        this.edtDate = (EditText) findViewById(R.id.edtDate);
+        this.edtDate = (EditText) findViewById(R.id.editDate);
         this.edtDate.setInputType(InputType.TYPE_NULL);
         this.edtDate.setOnClickListener(this);
-        this.edtLocation = (EditText) findViewById(R.id.edtLocation);
+        this.edtLocation = (EditText) findViewById(R.id.editLocation);
         this.edtLocation.setInputType(InputType.TYPE_NULL);
         this.edtLocation.setOnClickListener(this);
         this.okButton = (Button) findViewById(R.id.okButton);
@@ -130,7 +126,8 @@ public class AddEventActivity extends AppCompatActivity implements View.OnClickL
         String date = edtDate.getText().toString();
         String total = time +" ; " +date;
         String location = edtLocation.getText().toString();
-        EventDao.getInstance().createData(title, total, location, String.valueOf(currentLocation.latitude), String.valueOf(currentLocation.longitude));
+        String org = editOrganizer.getText().toString();
+        EventDao.getInstance().createData(title, total, location, org, String.valueOf(currentLocation.latitude), String.valueOf(currentLocation.longitude));
 
         this.finish();
     }

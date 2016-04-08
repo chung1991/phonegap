@@ -8,36 +8,31 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-
 import java.util.ArrayList;
-
 import maddiscovery.greenwich.com.maddiscovery.Entity.TheEvent;
 import maddiscovery.greenwich.com.maddiscovery.R;
 
-/**
- * Created by Himura on 2016/03/16.
- */
 public class EventAdapter extends BaseAdapter {
-    boolean isShow;
+    private boolean editShow;
     public ArrayList<String> listPosition = new ArrayList();
-    private ArrayList<TheEvent> mNoteList;
-    private LayoutInflater mLayoutInflater;
-    private Context mContext;
+    private ArrayList<TheEvent> listEvent;
+    private LayoutInflater layoutInflater;
+    private Context context;
 
     public EventAdapter(Context context, ArrayList<TheEvent> list) {
-        this.mContext = context;
-        this.mNoteList = list;
-        this.mLayoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
+        this.listEvent = list;
+        this.layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount() {
-        return mNoteList != null ? mNoteList.size() : 0;
+        return listEvent != null ? listEvent.size() : 0;
     }
 
     @Override
     public Object getItem(int position) {
-        return mNoteList.get(position);
+        return listEvent.get(position);
     }
 
     @Override
@@ -50,27 +45,28 @@ public class EventAdapter extends BaseAdapter {
         final ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
-            convertView = mLayoutInflater.inflate(R.layout.list_event_item, null);
-            holder.mTitle = (TextView) convertView.findViewById(R.id.lvTitle);
-            holder.mTime = (TextView) convertView.findViewById(R.id.lvTime);
-            holder.mContent = (TextView) convertView.findViewById(R.id.lvContent);
-            holder.cBox = (CheckBox) convertView.findViewById(R.id.cBox);
+            convertView = this.layoutInflater.inflate(R.layout.list_event_item, null);
+            holder.setTextViewTitle((TextView) convertView.findViewById(R.id.lvTitle));
+            holder.setTextViewTime((TextView) convertView.findViewById(R.id.lvTime));
+            holder.setTextViewContent((TextView) convertView.findViewById(R.id.lvContent));
+            holder.setCheckBoxEdit((CheckBox) convertView.findViewById(R.id.cBox));
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
         TheEvent event = (TheEvent) getItem(position);
-        holder.mTitle.setText(event.getTitle());
-        holder.mTime.setText(event.getTime());
-        holder.mContent.setText(event.getLocation());
-        if (isShow) {
-            holder.cBox.setVisibility(View.VISIBLE);
-            holder.cBox.setChecked(event.getIscheck());
+        holder.getTextViewTitle().setText(event.getTitle());
+        holder.getTextViewTime().setText(event.getTime());
+        holder.getTextViewContent().setText(event.getLocation());
+        if (editShow) {
+            holder.getCheckBoxEdit().setVisibility(View.VISIBLE);
+            holder.getCheckBoxEdit().setChecked(event.getIscheck());
         } else {
-            holder.cBox.setVisibility(View.INVISIBLE);
+            holder.getCheckBoxEdit().setVisibility(View.INVISIBLE);
         }
-        holder.cBox.setTag(position);
-        holder.cBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.getCheckBoxEdit().setTag(position);
+        holder.getCheckBoxEdit().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -82,9 +78,6 @@ public class EventAdapter extends BaseAdapter {
                 }
             }
         });
-//        if(event.getIscheck() == true){
-//            listPosition.add(position);
-//        }
         return convertView;
     }
 
@@ -94,13 +87,5 @@ public class EventAdapter extends BaseAdapter {
                 listPosition.remove(i);
             }
         }
-    }
-
-    public class ViewHolder {
-
-        private TextView mTitle;
-        private TextView mTime;
-        private TextView mContent;
-        private CheckBox cBox;
     }
 }
