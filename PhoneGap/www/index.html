@@ -86,9 +86,8 @@
     <div id="map"></div>
     <div id="divEvents" class="content-padded">
         <input id="txtSearchEvent" type="search" placeholder="Search Event">
-        <div id="divWrapperEvent">
-            <ul id="ulEvents" class="table-view">
-        </ul>
+        <div id="divWrapperEvent" class="container-fluid">
+            <div id="eventRows" class="row"></div>
         </div>
     </div>
 
@@ -200,7 +199,7 @@
     };
     var templates = {};
     templates[templateNames.HOME_NO_EVENTS] = ["divNoEvents", "homeHeader"];
-    templates[templateNames.HOME_HAS_EVENTS] = ["map", "divEvents", "ulEvents", "homeHeader"];
+    templates[templateNames.HOME_HAS_EVENTS] = ["divEvents", "divWrapperEvent", "homeHeader"];
     templates[templateNames.DETAILS] = ["divSlider", "divEventFooter", "divEventInfo", "divComments", "detailHeader"];
     templates[templateNames.ADD_STEP_1] = ["addStep1", "addStepButton", "addNewHeaderS1"];
     templates[templateNames.ADD_STEP_2] = ["addStep2", "addStepButton", "addNewHeaderS2"];
@@ -529,7 +528,6 @@
             props.EventDate = dateFrom1970;
             props.EventOrgName = eOrg;
 
-            clearMarker(selectedEventToUpdate.EventLat, selectedEventToUpdate.EventLon, selectedEventToUpdate.EventLocation);
             updateEvent(selectedEventToUpdate.EventId, props, finalStep);
         }
     }
@@ -616,6 +614,50 @@
     }
 
     // Refresh
+    /**
+     * Get time left
+     * @param startDateSince1970
+     */
+    function getTimeLeft(startDateSince1970) {
+        var retVal = "";
+        var todayDate = new Date();
+        var startDate = new Date(startDateSince1970);
+        var dateDiffInInteger = startDate - todayDate;
+        if (dateDiffInInteger > 0) {
+            // still has time
+            var secondDiff = Math.floor(dateDiffInInteger / 1000);
+            var minuteDiff = Math.floor(dateDiffInInteger / 1000 / 60);
+            var hourDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60);
+            var dayDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24);
+            var monthDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30);
+            var yearDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30 / 365);
+
+            if (yearDiff > 0) {
+                retVal = "About more than one year left";
+            } else if (monthDiff > 0) {
+                retVal = "About " + monthDiff + " month(s) left";
+            } else if (dayDiff > 0) {
+                if (dayDiff > 24) {
+                    retVal = "About 3 week(s) left";
+                } else if (dayDiff > 17) {
+                    retVal = "About 2 week(s) left";
+                } else if (dayDiff > 10) {
+                    retVal = "About 1 week(s) left";
+                } else {
+                    retVal = "About " + dayDiff + " day(s) left";
+                }
+            } else if (hourDiff > 0) {
+                retVal = "About " + hourDiff + " hour(s) left";
+            } else if (minuteDiff > 0) {
+                retVal = "About " + minuteDiff + " minute(s) left";
+            } else if (secondDiff > 0) {
+                retVal = "Just a couple of second(s) left";
+            }
+        } else {
+            retVal = "Started already";
+        }
+        return retVal;
+    }
 
     /**
      * Refresh event details
@@ -640,45 +682,9 @@
                 getHourName(startDateSince1970.getHours(), startDateSince1970.getMinutes());
 
         dateFullString += "<br/>";
+        dateFullString += getTimeLeft(startDateSince1970);
 
         var labelEventDate = document.getElementById("labelEventDate");
-        var todayDate = new Date();
-        var startDate = new Date(startDateSince1970);
-        var dateDiffInInteger = startDate - todayDate;
-
-        if (dateDiffInInteger > 0) {
-            // still has time
-            var secondDiff = Math.floor(dateDiffInInteger / 1000);
-            var minuteDiff = Math.floor(dateDiffInInteger / 1000 / 60);
-            var hourDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60);
-            var dayDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24);
-            var monthDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30);
-            var yearDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30 / 365);
-
-            if (yearDiff > 0) {
-                dateFullString += "About more than one year left";
-            } else if (monthDiff > 0) {
-                dateFullString += "About " + monthDiff + " months left";
-            } else if (dayDiff > 0) {
-                if (dayDiff > 24) {
-                    dateFullString += "About 3 weeks left";
-                } else if (dayDiff > 17) {
-                    dateFullString += "About 2 weeks left";
-                } else if (dayDiff > 10) {
-                    dateFullString += "About 1 weeks left";
-                } else {
-                    dateFullString += "About " + dayDiff + " days left";
-                }
-            } else if (hourDiff > 0) {
-                dateFullString += "About " + hourDiff + " hours left";
-            } else if (minuteDiff > 0) {
-                dateFullString += "About " + minuteDiff + " minutes left";
-            } else if (secondDiff > 0) {
-                dateFullString += "Just a couple of seconds left";
-            }
-        } else {
-            dateFullString += "Started already";
-        }
         labelEventDate.innerHTML = dateFullString;
     }
 
@@ -800,8 +806,8 @@
             setTemplate(templateNames.HOME_NO_EVENTS);
         } else {
             setTemplate(templateNames.HOME_HAS_EVENTS);
-            var ulEvents = document.getElementById("ulEvents");
-            ulEvents.innerHTML = "";
+            var eventRows = document.getElementById("eventRows");
+            eventRows.innerHTML = "";
             var numberOfEvent = rs.rows.length;
             for (var i = 0; i < numberOfEvent; i++) {
                 var cell = rs.rows.item(i);
@@ -813,65 +819,24 @@
                 var eventLon = cell.EventLon;
                 var eventStatus = cell.EventStatus;
 
-                var li = document.createElement("li");
-                li.setAttribute("class", "table-view-cell");
-                li.setAttribute("id", "event" + eventId);
-                li.setAttribute("onclick", "onEventListItemSelected('event" + eventId + "', " + eventLat + ", " + eventLon + ", '" + eventLocation + "');");
+                var timeLeft = getTimeLeft(eventDate);
+                var displayInfo = eventName + "<br/>" + timeLeft;
 
-                var link = document.createElement("a");
-                link.innerHTML = displayShortVersion(eventName, 20);
+                var eventNameDiv = document.createElement("div");
+                eventNameDiv.setAttribute("id", "event" + eventId);
+                eventNameDiv.setAttribute("class", "col-xs-4");
+                eventNameDiv.setAttribute("onclick", "getEventById(" + eventId + ", viewEvent);");
 
-                var loadButton = document.createElement("button");
-                loadButton.setAttribute("class", "btn btn-primary");
-                loadButton.setAttribute("onclick", "getEventById(" + eventId + ", viewEvent);");
-                loadButton.innerHTML = "Load";
-                link.appendChild(loadButton);
-
-                if (eventStatus == 1) {
-                    var editButton = document.createElement("button");
-                    editButton.setAttribute("class", "btn btn-primary");
-                    editButton.setAttribute("style", "margin-right: 60px;");
-                    editButton.setAttribute("onclick", "getEventById(" + eventId + ", editEvent);");
-                    editButton.innerHTML = "Edit";
-                    link.appendChild(editButton);
-
-                    var stopButton = document.createElement("button");
-                    stopButton.setAttribute("class", "btn btn-primary");
-                    stopButton.setAttribute("style", "margin-right: 112.5px;");
-                    stopButton.setAttribute("onclick", "showStopEventConfirm(" + eventId + ", 'Stop event', 'Are you sure to stop this event', 'Yes', 'No', onConfirmSelected);");
-                    stopButton.innerHTML = "Stop";
-                    link.appendChild(stopButton);
-                }
-
-                li.appendChild(link);
-                ulEvents.appendChild(li);
-
-                // save marker
-                if (!eventLat.trim() || !eventLon.trim()) {
-                    alert("Place is invalid");
-                } else {
-                    var key = eventLat + "/" + eventLon + "/" + eventLocation;
-                    if (savedMarkers[key] == null) {
-                        var eventDescription = eventName + "<br/>" + getHourName(eventDate.getHours(), eventDate.getMinutes());
-                        savedMarkers[key] = {};
-                        savedMarkers[key].eventDescription = eventDescription;
-                    }
-                }
-
+                eventNameDiv.innerHTML = displayInfo;
+                eventRows.appendChild(eventNameDiv);
             }
 
-            reloadMarkers();
+            var maxHeight = 0;
+            $("#eventRows div").each(function(){
+                if ($(this).height() > maxHeight) { maxHeight = $(this).height(); }
+            });
 
-            // load first place if any
-            var numberOfEvent = rs.rows.length;
-            if (numberOfEvent > 0) {
-                var cell = rs.rows.item(0);
-                var eventId = cell.EventId;
-                var eventLocation = cell.EventLocation;
-                var eventLat = cell.EventLat;
-                var eventLon = cell.EventLon;
-                onEventListItemSelected("event" + eventId, eventLat, eventLon, eventLocation);
-            }
+            $("#eventRows div").height(maxHeight);
         }
     }
 
@@ -1072,15 +1037,6 @@
         alert("Function is building");
     }
 
-    function onEventListItemSelected(selectorName, lat, lon, name) {
-        $('#ulEvents li').each(function() {
-            $(this).removeClass("selectedListItem");
-        });
-
-        $("#" + selectorName).addClass("selectedListItem");
-        centerMarker(lat, lon, name);
-    }
-
     function deviceReady() {
         document.getElementById("buttonAddEvent").addEventListener("click", this.onButtonAddClicked, false);
         document.getElementById("buttonNextStep").addEventListener("click", this.onButtonNextClicked, false);
@@ -1103,7 +1059,7 @@
         // init search button
         $('#txtSearchEvent').keyup(function(){
             var searchText = $(this).val();
-            $('#ulEvents li').each(function() {
+            $('#eventRows div').each(function() {
                 var currentLiText = $(this).text();
                 var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
                 $(this).toggle(showCurrentLi);
