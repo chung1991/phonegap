@@ -56,7 +56,7 @@ function createTable(callback) {
 }
 
 function getListEvent(updateUI) {
-    var query = "SELECT * FROM EventTBL";
+    var query = "SELECT * FROM EventTBL ORDER BY CAST(EventDate AS INTEGER);";
 
     db.transaction(
         function (tx) {
