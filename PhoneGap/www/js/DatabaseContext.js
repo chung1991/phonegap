@@ -67,6 +67,29 @@ function getListEvent(updateUI) {
     );
 }
 
+function getListEventOrderBy(field, order, updateUI) {
+    // field: 1 = Date, 2 = Event Name
+    // order: 1 = ASC, 2 = DESC
+    var orderName = order == 1 ? "ASC" : "DESC";
+    var query = "";
+    if (field == 1) {
+        query = "SELECT * FROM EventTBL ORDER BY CAST(EventDate AS INTEGER) " + orderName + ";";
+    } else if (field == 2) {
+        query = "SELECT * FROM EventTBL ORDER BY EventName " + orderName + ";";
+    } else {
+        alert("Invalid request!");
+        return;
+    }
+
+    db.transaction(
+        function (tx) {
+            tx.executeSql(query, [], function (tx, rs) { // rs = result set
+                updateUI(rs);
+            });
+        }
+    );
+}
+
 function getListTextReport(eventId, updateTextReportUI) {
     var query = "SELECT * FROM TextReport WHERE EventID = ?";
 
