@@ -85,7 +85,15 @@
 
     <div id="map"></div>
     <div id="divEvents" class="content-padded">
-        <input id="txtSearchEvent" type="search" placeholder="Search Event">
+        <div class="dropdown" style="display: inline; width: 19%">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a href="#" id="orderDate" onclick="changeOrder(1);">Event Date</a></li>
+                <li><a href="#" id="orderName" onclick="changeOrder(2);">Event Name</a></li>
+            </ul>
+        </div>
+        <input id="txtSearchEvent" type="search" placeholder="Search Event" style="display: inline;width: 80%">
         <div id="divWrapperEvent" class="container-fluid">
             <div id="eventRows" class="row"></div>
         </div>
@@ -1029,6 +1037,20 @@
         }
     }
 
+    var currentOrderEventDateDirection = 1;
+    var currentOrderEventNameDirection = 1;
+    function changeOrder(fieldIndex) {
+        if (fieldIndex == 1) {
+            getListEventOrderBy(fieldIndex, currentOrderEventDateDirection, updateHomeUI);
+            currentOrderEventDateDirection = currentOrderEventDateDirection == 1 ? 2 : 1;
+        } else if (fieldIndex == 2) {
+            getListEventOrderBy(fieldIndex, currentOrderEventNameDirection, updateHomeUI);
+            currentOrderEventNameDirection = currentOrderEventNameDirection == 1 ? 2 : 1;
+        }
+
+        applyOrderForCombobox();
+    }
+
     function onFacebookButtonClick() {
         alert("Function is building");
     }
@@ -1082,6 +1104,17 @@
         setTimeout(function(){
             getListEvent(updateHomeUI);
         }, 2000);
+
+        applyOrderForCombobox();
+    }
+
+    function applyOrderForCombobox() {
+        // apply order for commbobox
+        var orderDateText = currentOrderEventDateDirection == 1 ? "ASC" : "DESC";
+        $("#orderDate").html("Event Date<br/>" + orderDateText);
+
+        var orderNameText = currentOrderEventNameDirection == 1 ? "ASC" : "DESC";
+        $("#orderName").html("Event Name<br/>" + orderNameText);
     }
 
     /*
