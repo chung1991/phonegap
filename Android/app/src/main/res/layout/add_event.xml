@@ -21,13 +21,13 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/custom_border"
-                android:hint="Title "
+                android:hint="Event name "
                 android:paddingLeft="15dp"
                 android:textColor="@color/text"
                 android:textSize="15dp" />
 
             <EditText
-                android:id="@+id/editTime"
+                android:id="@+id/editLocation"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/table_height"
                 android:layout_below="@+id/editTitle"
@@ -36,7 +36,7 @@
                 android:layout_marginTop="4dp"
                 android:background="@drawable/custom_border"
                 android:gravity="center_vertical"
-                android:hint="Time"
+                android:hint="Location"
                 android:paddingLeft="15dp"
                 android:textColor="@color/text"
                 android:textSize="15dp" />
@@ -45,7 +45,7 @@
                 android:id="@+id/editDate"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/table_height"
-                android:layout_below="@+id/editTime"
+                android:layout_below="@+id/editLocation"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="4dp"
@@ -57,7 +57,7 @@
                 android:textSize="15dp" />
 
             <EditText
-                android:id="@+id/editLocation"
+                android:id="@+id/editTime"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/table_height"
                 android:layout_below="@+id/editDate"
@@ -66,15 +66,16 @@
                 android:layout_marginTop="4dp"
                 android:background="@drawable/custom_border"
                 android:gravity="center_vertical"
-                android:hint="Location"
+                android:hint="Time"
                 android:paddingLeft="15dp"
                 android:textColor="@color/text"
                 android:textSize="15dp" />
+
             <EditText
                 android:id="@+id/editOrg"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/table_height"
-                android:layout_below="@+id/editLocation"
+                android:layout_below="@+id/editTime"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="4dp"
