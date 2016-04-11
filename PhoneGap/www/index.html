@@ -85,21 +85,15 @@
 
     <div id="map"></div>
     <div id="divEvents" class="content-padded">
-        <div style="display: block; width: 100%">
-            <div class="dropdown" style="display: inline; width: 19%">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order
-                    <span class="caret"></span></button>
-                <ul class="dropdown-menu">
-                    <li><a href="#" id="orderDate" onclick="onOrderBoxValueChanged(1);">Event Date</a></li>
-                    <li><a href="#" id="orderName" onclick="onOrderBoxValueChanged(2);">Event Name</a></li>
-                </ul>
-            </div>
-            <input id="txtSearchEvent" type="search" placeholder="Enter event name, location or organizer" style="display: inline;width: 80%">
-        </div>
+
 
         <div class="content-padded">
             <div class="form-horizontal">
                 <div class="form-group">
+                    <label class="control-label col-sm-2" for="txtAddEventName">Filter event</label>
+                    <div class="col-sm-10">
+                        <input id="txtSearchEvent" type="search" placeholder="Enter event name, location or organizer"/>
+                    </div>
                     <label class="control-label col-sm-2" for="txtAddEventName">Search in date range</label>
                     <div class="col-sm-10">
                         <input id="txtFromDate" class="form-control" type="date" placeholder="From Date">
@@ -108,7 +102,15 @@
                         <input id="txtToDate" class="form-control" type="date" placeholder="To Date">
                     </div>
                     <div class="col-sm-10">
-                        <button id="btnSearchInRange" type="button" onclick="onButtonSearchInRangeClicked();" class="btn btn-primary">Search</button>
+                        <button id="btnSearchInRange" type="button" onclick="onButtonSearchInRangeClicked();" class="btn btn-primary" style="display: inline;">Search</button>
+                        <div class="dropdown" style="display: inline;">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order
+                                <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" id="orderDate" onclick="onOrderBoxValueChanged(1);">Event Date</a></li>
+                                <li><a href="#" id="orderName" onclick="onOrderBoxValueChanged(2);">Event Name</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
