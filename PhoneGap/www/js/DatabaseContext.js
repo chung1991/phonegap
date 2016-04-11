@@ -1,7 +1,7 @@
 var db = null;
 
 function connectDB() {
-    db = window.openDatabase("madDiscovery9", 1.0, "Mad Discovery", 5000000); // name database, version, description, size of db (kb)
+    db = window.openDatabase("madDiscovery11", 1.0, "Mad Discovery", 5000000); // name database, version, description, size of db (kb)
 }
 
 function createTable(callback) {
@@ -159,12 +159,12 @@ function updateEvent(eventId, props, callback) {
     );
 }
 
-function isEventExisted(eLat, eLon, eName, eOrg, callback) {
-    var query = "SELECT * FROM EventTBL WHERE (EventLat = ? AND EventLon = ?) or (EventName = ? AND EventOrgName = ?)";
+function isEventExisted(selectedDate, nextSelectedDate, eName, eOrg, callback) {
+    var query = "SELECT * FROM EventTBL WHERE CAST(EventDate AS INTEGER) > ? AND CAST(EventDate AS INTEGER) < ? AND EventName = ? AND EventOrgName = ?";
 
     db.transaction(
         function (tx) {
-            tx.executeSql(query, [eLat, eLon, eName, eOrg], function (tx, rs) { // rs = result set
+            tx.executeSql(query, [selectedDate, nextSelectedDate, eName, eOrg], function (tx, rs) { // rs = result set
                 callback(rs);
             });
         }

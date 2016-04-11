@@ -982,7 +982,11 @@
         }
 
         if (isValid) {
-            isEventExisted(locationLat, locationLon, txtAddEventName, txtAddEventOrg, function (rs) {
+            var parsedDate = new Date(document.getElementById("txtAddEventDate").value);
+            var selectedDate = parsedDate.getTime() + (parsedDate.getTimezoneOffset() * 60 * 1000);
+            var nextSelectedDate = selectedDate + (24 * 60 * 60 * 1000);
+
+            isEventExisted(selectedDate, nextSelectedDate, txtAddEventName, txtAddEventOrg, function (rs) {
                 stepManager["txtAddEventName"] = document.getElementById("txtAddEventName").value;
                 stepManager["txtAddEventLocation"] = document.getElementById("txtAddEventLocation").value;
                 stepManager["locationLat"] = document.getElementById("locationLat").value;
@@ -1008,7 +1012,7 @@
                     }
 
                     if (!isSameRecord) {
-                        errAddExisted.html("Adding new event was failed, may be due to: <br/> 1) An event was expected in this place. <br/> 2) Had an event with same both Organizer Name and Event Name already.");
+                        errAddExisted.html("An event with same <br/>1) Event Name<br/>2) Event Date<br/>3) Organizer Name <br/>was existed already.");
                         errAddExisted.toggle(true);
                         stepManager.step = 1;
                     }
