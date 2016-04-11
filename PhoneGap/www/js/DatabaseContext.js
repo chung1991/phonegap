@@ -67,6 +67,18 @@ function getListEvent(updateUI) {
     );
 }
 
+function getListEventInRange(fromDate, toDate, callback) {
+    var query = "SELECT * FROM EventTBL WHERE CAST(EventDate AS INTEGER) > ? AND CAST(EventDate AS INTEGER) < ?";
+
+    db.transaction(
+        function (tx) {
+            tx.executeSql(query, [fromDate, toDate], function (tx, rs) { // rs = result set
+                callback(rs);
+            });
+        }
+    );
+}
+
 function getListEventOrderBy(field, order, updateUI) {
     // field: 1 = Date, 2 = Event Name
     // order: 1 = ASC, 2 = DESC
