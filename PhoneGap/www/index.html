@@ -149,7 +149,7 @@
                 <label class="control-label col-sm-2" for="txtAddEventLocation">Event location:</label>
                 <span id="errAddEventLocation" class="label label-danger">a</span>
                 <div class="col-sm-10">
-                    <input id="txtAddEventLocation" class="form-control" type="text" placeholder="Event location">
+                    <input id="txtAddEventLocation" class="form-control" type="text" onkeydown="resetLatLon();" placeholder="Event location">
                     <input id="locationLat" type="hidden"/>
                     <input id="locationLon" type="hidden"/>
                 </div>
@@ -254,6 +254,13 @@
             return "Sunday";
         }
         return "null";
+    }
+
+    function resetLatLon() {
+        if (document.getElementById('locationLat').value) {
+            document.getElementById('locationLat').value = "";
+            document.getElementById('locationLon').value = "";
+        }
     }
 
     /**
@@ -826,6 +833,7 @@
                 var eventLat = cell.EventLat;
                 var eventLon = cell.EventLon;
                 var eventStatus = cell.EventStatus;
+                var eventOrg = cell.EventOrgName;
 
                 var timeLeft = getTimeLeft(eventDate);
                 var displayInfo = eventName + "<br/>" + timeLeft;
@@ -834,6 +842,7 @@
                 eventNameDiv.setAttribute("id", "event" + eventId);
                 eventNameDiv.setAttribute("class", "col-xs-4");
                 eventNameDiv.setAttribute("onclick", "getEventById(" + eventId + ", viewEvent);");
+                eventNameDiv.setAttribute("attach-info", eventLocation + " " + eventOrg);
 
                 eventNameDiv.innerHTML = displayInfo;
                 eventRows.appendChild(eventNameDiv);
@@ -1080,11 +1089,12 @@
 
         // init search button
         $('#txtSearchEvent').keyup(function(){
-            var searchText = $(this).val();
+            var searchText = $(this).val().toLowerCase();
             $('#eventRows div').each(function() {
-                var currentLiText = $(this).text();
-                var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
-                $(this).toggle(showCurrentLi);
+                var currentText = $(this).text().toLowerCase();
+                var attachInfo = $(this).attr("attach-info").toLowerCase();
+                var isVisible = (currentText.indexOf(searchText) != -1) || (attachInfo.indexOf(searchText) != -1);
+                $(this).toggle(isVisible);
 
             });
         });
