@@ -182,7 +182,7 @@ h1 {
 /*end section comment*/
 
 #divEvents {
-    height: 40%;
+    height: 60%;
 }
 
 #divWrapperEvent {
@@ -244,7 +244,7 @@ h1 {
 /*Structure of Detail*/
 
 #divEventInfo {
-    height: 10%;
+    height: 15%;
 }
 
 #divSlider {
@@ -255,7 +255,7 @@ h1 {
 
 #divComments {
     width: 100%;
-    height: 35%;
+    height: 30%;
     position: fixed;
     overflow-y: scroll;
     overflow-wrap: break-word;
@@ -357,4 +357,20 @@ h1 {
 #popover ul li a span {
     position: absolute;
     margin-top: 10px;
+}
+
+.row div {
+    background-color:lavender;
+    border-style: outset;
+}
+
+.row div:active {
+    position: relative;
+    top: 1px;
+    background-color: lavenderblush;
+}
+
+#map {
+    display: none;
+    visibility: hidden;
 }

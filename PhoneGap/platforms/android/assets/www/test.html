@@ -21,26 +21,69 @@
         img {
             margin: 0 auto;
         }
+        .row div {
+            background-color:lavender;
+            border-style: outset;
+        }
+
+        .col-xs-4 {
+            height: 40px;
+            vertical-align: middle;
+            text-align: center;
+
+        }
     </style>
 </head>
 <body>
-<header class="bar bar-nav">
-    <h1 class="title">Sharing option</h1>
-</header>
-<ul class="table-view">
-    <li class="table-view-cell">
-        <a>
-            <img class="media-object pull-left" src="img/01.png">
-            <span>Facebook</span>
-        </a>
-    </li>
-    <li class="table-view-cell">
-        <a>
-            <img class="media-object pull-left" src="img/01.png">
-            <span>Facebook</span>
-        </a>
-    </li>
-</ul>
-</div>
+
+<label class="control-label col-sm-2" style="display:inline;width: auto;">Search by date:</label>
+<input id="txtEventFrom" class="form-control" type="date" placeholder="From Date">
+<input id="txtEventTo" class="form-control" type="date" style="display:inline; width: 19%" placeholder="To Date">
+<button id="btnSearchByDate" class="btn-positive" onclick="">Search</button>
+
+
+<!--<div id="divEvents" class="content-padded" style="display: inline">-->
+    <!--<input id="txtSearchEvent" type="search" placeholder="Search Event" style="display: inline;width: 80%">-->
+    <!--<div class="dropdown" style="display: inline; width: 19%">-->
+        <!--<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order-->
+            <!--<span class="caret"></span></button>-->
+        <!--<ul class="dropdown-menu">-->
+            <!--<li><a href="#" id="orderDate" onclick="changeOrder(1);">Event Date</a></li>-->
+            <!--<li><a href="#" id="orderName" onclick="changeOrder(2);">Event Name</a></li>-->
+        <!--</ul>-->
+    <!--</div>-->
+    <!--<div id="divWrapperEvent" class="container-fluid">-->
+        <!--<div id="eventRows" class="row"></div>-->
+    <!--</div>-->
+<!--</div>-->
+<!--<div class="container-fluid">-->
+    <!--<div class="row">-->
+        <!--<div class="col-xs-4">Event Name</div>-->
+        <!--<div class="col-xs-4">Event Date</div>-->
+        <!--<div class="col-xs-4">Event Organizer</div>-->
+    <!--</div>-->
+<!--</div>-->
+<!--<div id="divWrapperEvent" class="container-fluid">-->
+    <!--&lt;!&ndash;<div id="ulEvents" class="table-view">&ndash;&gt;-->
+        <!--<div class="row">-->
+            <!--<div class="col-xs-4">Event 1</div>-->
+            <!--<div class="col-xs-4">20/10/1991</div>-->
+            <!--<div class="col-xs-4">-->
+                <!--<button class="btn btn-primary">Load</button>-->
+                <!--<button class="btn btn-primary" style="margin-right: 60px">Edit</button>-->
+                <!--<button class="btn btn-primary" style="margin-right: 112.5px">Stop</button>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--<div class="row">-->
+        <!--<div class="col-xs-4">Event 1</div>-->
+        <!--<div class="col-xs-4">20/10/1991</div>-->
+        <!--<div class="col-xs-4">-->
+            <!--<button class="btn btn-primary">Load</button>-->
+            <!--<button class="btn btn-primary" style="margin-right: 60px">Edit</button>-->
+            <!--<button class="btn btn-primary" style="margin-right: 112.5px">Stop</button>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+<!--</div>-->
 </body>
 </html>

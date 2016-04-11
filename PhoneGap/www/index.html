@@ -834,7 +834,7 @@
                 div.setAttribute("class", "slide");
 
                 var img = document.createElement("img");
-                img.setAttribute("class", "img-responsive");
+                img.setAttribute("class", "img-responsive loadedImg");
                 img.setAttribute("src", rs.rows.item(i).ImgURL);
 
                 div.appendChild(img);
@@ -1172,7 +1172,22 @@
     }
 
     function onFacebookButtonClick() {
-        alert("Function is building");
+        var imgList = [];
+        $(".loadedImg").each(function () {
+            imgList.push($(this).attr("src"));
+        });
+
+        window.plugins.socialsharing.shareViaFacebook('Message via Facebook',
+                imgList /* img */,
+                null /* url */,
+                function() {
+                    console.log('share ok');
+                },
+                function(errormsg) {
+                    alert(errormsg);
+                }
+        );
+
     }
 
     function onTwitterButtonClick() {

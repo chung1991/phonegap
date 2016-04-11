@@ -85,10 +85,37 @@
 
     <div id="map"></div>
     <div id="divEvents" class="content-padded">
-        <input id="txtSearchEvent" type="search" placeholder="Search Event">
-        <div id="divWrapperEvent">
-            <ul id="ulEvents" class="table-view">
-        </ul>
+        <div style="display: block; width: 100%">
+            <div class="dropdown" style="display: inline; width: 19%">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order
+                    <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="orderDate" onclick="onOrderBoxValueChanged(1);">Event Date</a></li>
+                    <li><a href="#" id="orderName" onclick="onOrderBoxValueChanged(2);">Event Name</a></li>
+                </ul>
+            </div>
+            <input id="txtSearchEvent" type="search" placeholder="Enter event name, location or organizer" style="display: inline;width: 80%">
+        </div>
+
+        <div class="content-padded">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="txtAddEventName">Search in date range</label>
+                    <div class="col-sm-10">
+                        <input id="txtFromDate" class="form-control" type="date" placeholder="From Date">
+                    </div>
+                    <div class="col-sm-10">
+                        <input id="txtToDate" class="form-control" type="date" placeholder="To Date">
+                    </div>
+                    <div class="col-sm-10">
+                        <button id="btnSearchInRange" type="button" onclick="onButtonSearchInRangeClicked();" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="divWrapperEvent" class="container-fluid">
+            <div id="eventRows" class="row"></div>
         </div>
     </div>
 
@@ -99,6 +126,9 @@
             <br>
             About a week left
         </h6>
+        <button id="btnDeleteEvent" type="button" onclick="onButtonDeleteClicked();" class="btn btn-danger">Delete</button>
+        <button id="btnEditEvent" type="button" onclick="onButtonEditClicked();" class="btn btn-primary">Edit</button>
+        <button id="btnStopEvent" type="button" onclick="onButtonStopClicked();" class="btn btn-danger">Stop</button>
     </div>
 
     <div id="divSlider" class="slider">
@@ -115,7 +145,7 @@
                         <button id="buttonCamera" class="btn-positive" onclick="takePicture();">Capture</button>
                     </td>
                     <td id="tdCommentBox">
-                        <input id="txtComment" type="text" placeholder="Your comment">
+                        <input id="txtComment" type="text" placeholder="Your textual report">
                     </td>
                     <td id="tdSendButton">
                         <button id="buttonComment" class="btn-positive" onclick="takeComment();">Send</button>
@@ -142,7 +172,7 @@
                 <label class="control-label col-sm-2" for="txtAddEventLocation">Event location:</label>
                 <span id="errAddEventLocation" class="label label-danger">a</span>
                 <div class="col-sm-10">
-                    <input id="txtAddEventLocation" class="form-control" type="text" placeholder="Event location">
+                    <input id="txtAddEventLocation" class="form-control" type="text" onkeydown="resetLatLon();" placeholder="Event location">
                     <input id="locationLat" type="hidden"/>
                     <input id="locationLon" type="hidden"/>
                 </div>
@@ -200,7 +230,7 @@
     };
     var templates = {};
     templates[templateNames.HOME_NO_EVENTS] = ["divNoEvents", "homeHeader"];
-    templates[templateNames.HOME_HAS_EVENTS] = ["map", "divEvents", "ulEvents", "homeHeader"];
+    templates[templateNames.HOME_HAS_EVENTS] = ["divEvents", "divWrapperEvent", "homeHeader"];
     templates[templateNames.DETAILS] = ["divSlider", "divEventFooter", "divEventInfo", "divComments", "detailHeader"];
     templates[templateNames.ADD_STEP_1] = ["addStep1", "addStepButton", "addNewHeaderS1"];
     templates[templateNames.ADD_STEP_2] = ["addStep2", "addStepButton", "addNewHeaderS2"];
@@ -247,6 +277,13 @@
             return "Sunday";
         }
         return "null";
+    }
+
+    function resetLatLon() {
+        if (document.getElementById('locationLat').value) {
+            document.getElementById('locationLat').value = "";
+            document.getElementById('locationLon').value = "";
+        }
     }
 
     /**
@@ -480,9 +517,30 @@
             updateDetailsUI(selectedEvent.EventName, eventDate);
         }
 
+        // update visibility of control buttons
+        updateReportControls(selectedEvent.EventStatus);
+
         getListImageReport(selectedEventId, updateImageReportUI);
         getListTextReport(selectedEventId, updateTextReportUI);
         setTemplate(templateNames.DETAILS);
+    }
+
+    function updateReportControls(eventStatus) {
+        if (eventStatus == 1) {
+            $("#btnDeleteEvent").toggle(false);
+            $("#btnEditEvent").toggle(true);
+            $("#btnStopEvent").toggle(true);
+            $("#buttonCamera").prop("disabled", false);
+            $("#buttonComment").prop("disabled", false);
+            $("#txtComment").prop("readonly", false);
+        } else {
+            $("#btnDeleteEvent").toggle(true);
+            $("#btnEditEvent").toggle(false);
+            $("#btnStopEvent").toggle(false);
+            $("#buttonCamera").prop("disabled", true);
+            $("#buttonComment").prop("disabled", true);
+            $("#txtComment").prop("readonly", true);
+        }
     }
 
     /**
@@ -529,7 +587,6 @@
             props.EventDate = dateFrom1970;
             props.EventOrgName = eOrg;
 
-            clearMarker(selectedEventToUpdate.EventLat, selectedEventToUpdate.EventLon, selectedEventToUpdate.EventLocation);
             updateEvent(selectedEventToUpdate.EventId, props, finalStep);
         }
     }
@@ -570,6 +627,9 @@
             finishLabel.innerHTML = "Your event has been created successfully.";
         }
 
+//        if (map != null) {
+//            google.maps.event.trigger(map, 'resize');
+//        }
         setTemplate(templateNames.ADD_STEP_2);
         stepManager.step = 2;
     }
@@ -613,6 +673,50 @@
     }
 
     // Refresh
+    /**
+     * Get time left
+     * @param startDateSince1970
+     */
+    function getTimeLeft(startDateSince1970) {
+        var retVal = "";
+        var todayDate = new Date();
+        var startDate = new Date(startDateSince1970);
+        var dateDiffInInteger = startDate - todayDate;
+        if (dateDiffInInteger > 0) {
+            // still has time
+            var secondDiff = Math.floor(dateDiffInInteger / 1000);
+            var minuteDiff = Math.floor(dateDiffInInteger / 1000 / 60);
+            var hourDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60);
+            var dayDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24);
+            var monthDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30);
+            var yearDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30 / 365);
+
+            if (yearDiff > 0) {
+                retVal = "About more than one year left";
+            } else if (monthDiff > 0) {
+                retVal = "About " + monthDiff + " month(s) left";
+            } else if (dayDiff > 0) {
+                if (dayDiff > 24) {
+                    retVal = "About 3 week(s) left";
+                } else if (dayDiff > 17) {
+                    retVal = "About 2 week(s) left";
+                } else if (dayDiff > 10) {
+                    retVal = "About 1 week(s) left";
+                } else {
+                    retVal = "About " + dayDiff + " day(s) left";
+                }
+            } else if (hourDiff > 0) {
+                retVal = "About " + hourDiff + " hour(s) left";
+            } else if (minuteDiff > 0) {
+                retVal = "About " + minuteDiff + " minute(s) left";
+            } else if (secondDiff > 0) {
+                retVal = "Just a couple of second(s) left";
+            }
+        } else {
+            retVal = "Started already";
+        }
+        return retVal;
+    }
 
     /**
      * Refresh event details
@@ -637,45 +741,9 @@
                 getHourName(startDateSince1970.getHours(), startDateSince1970.getMinutes());
 
         dateFullString += "<br/>";
+        dateFullString += getTimeLeft(startDateSince1970);
 
         var labelEventDate = document.getElementById("labelEventDate");
-        var todayDate = new Date();
-        var startDate = new Date(startDateSince1970);
-        var dateDiffInInteger = startDate - todayDate;
-
-        if (dateDiffInInteger > 0) {
-            // still has time
-            var secondDiff = Math.floor(dateDiffInInteger / 1000);
-            var minuteDiff = Math.floor(dateDiffInInteger / 1000 / 60);
-            var hourDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60);
-            var dayDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24);
-            var monthDiff = Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30);
-            var yearDiff =  Math.floor(dateDiffInInteger / 1000 / 60 / 60 / 24 / 30 / 365);
-
-            if (yearDiff > 0) {
-                dateFullString += "About more than one year left";
-            } else if (monthDiff > 0) {
-                dateFullString += "About " + monthDiff + " months left";
-            } else if (dayDiff > 0) {
-                if (dayDiff > 24) {
-                    dateFullString += "About 3 weeks left";
-                } else if (dayDiff > 17) {
-                    dateFullString += "About 2 weeks left";
-                } else if (dayDiff > 10) {
-                    dateFullString += "About 1 weeks left";
-                } else {
-                    dateFullString += "About " + dayDiff + " days left";
-                }
-            } else if (hourDiff > 0) {
-                dateFullString += "About " + hourDiff + " hours left";
-            } else if (minuteDiff > 0) {
-                dateFullString += "About " + minuteDiff + " minutes left";
-            } else if (secondDiff > 0) {
-                dateFullString += "Just a couple of seconds left";
-            }
-        } else {
-            dateFullString += "Started already";
-        }
         labelEventDate.innerHTML = dateFullString;
     }
 
@@ -697,7 +765,7 @@
 
             var div = document.createElement("div");
             div.setAttribute("class", "divNoteNotFound");
-            div.innerHTML = "Add a note now";
+            div.innerHTML = "Add a textual report now";
 
             li.appendChild(div);
             ulComments.appendChild(li);
@@ -755,7 +823,7 @@
 
             var span = document.createElement("span");
             span.setAttribute("class", "slide-text");
-            span.innerHTML = "Add a photo now";
+            span.innerHTML = "Add a photo report now";
 
             div.appendChild(img);
             div.appendChild(span);
@@ -766,12 +834,54 @@
                 div.setAttribute("class", "slide");
 
                 var img = document.createElement("img");
-                img.setAttribute("class", "img-responsive");
+                img.setAttribute("class", "img-responsive loadedImg");
                 img.setAttribute("src", rs.rows.item(i).ImgURL);
 
                 div.appendChild(img);
                 divImageReport.appendChild(div);
             }
+        }
+    }
+
+    function refreshHomeUI(rs) {
+        var eventRows = document.getElementById("eventRows");
+        eventRows.innerHTML = "";
+        var numberOfEvent = rs.rows.length;
+        if (numberOfEvent == 0) {
+            eventRows.innerHTML = "No event is matched";
+        } else {
+            for (var i = 0; i < numberOfEvent; i++) {
+                var cell = rs.rows.item(i);
+                var eventId = cell.EventId;
+                var eventName = cell.EventName;
+                var eventDate = new Date(parseInt(rs.rows.item(i).EventDate));
+                var eventLocation = cell.EventLocation;
+                var eventLat = cell.EventLat;
+                var eventLon = cell.EventLon;
+                var eventStatus = cell.EventStatus;
+                var eventOrg = cell.EventOrgName;
+
+                var timeLeft = getTimeLeft(eventDate);
+                var displayInfo = eventName + "<br/>" + timeLeft;
+
+                var eventNameDiv = document.createElement("div");
+                eventNameDiv.setAttribute("id", "event" + eventId);
+                eventNameDiv.setAttribute("class", "col-xs-4");
+                eventNameDiv.setAttribute("onclick", "getEventById(" + eventId + ", viewEvent);");
+                eventNameDiv.setAttribute("attach-info", eventLocation + " " + eventOrg);
+
+                eventNameDiv.innerHTML = displayInfo;
+                eventRows.appendChild(eventNameDiv);
+            }
+
+            var maxHeight = 0;
+            $("#eventRows div").each(function () {
+                if ($(this).height() > maxHeight) {
+                    maxHeight = $(this).height();
+                }
+            });
+
+            $("#eventRows div").height(maxHeight);
         }
     }
 
@@ -791,84 +901,17 @@
         selectedEventToUpdate = null;
         // reset search string
         document.getElementById("txtSearchEvent").value = "";
+        // reset from date
+        var today = new Date();
+        document.getElementById("txtFromDate").value = formatDate(today);
+        document.getElementById("txtToDate").value = formatDate(today);
 
         var numberOfEvent = rs.rows.length;
         if (numberOfEvent == 0) {
             setTemplate(templateNames.HOME_NO_EVENTS);
         } else {
             setTemplate(templateNames.HOME_HAS_EVENTS);
-            var ulEvents = document.getElementById("ulEvents");
-            ulEvents.innerHTML = "";
-            var numberOfEvent = rs.rows.length;
-            for (var i = 0; i < numberOfEvent; i++) {
-                var cell = rs.rows.item(i);
-                var eventId = cell.EventId;
-                var eventName = cell.EventName;
-                var eventDate = new Date(parseInt(rs.rows.item(i).EventDate));
-                var eventLocation = cell.EventLocation;
-                var eventLat = cell.EventLat;
-                var eventLon = cell.EventLon;
-                var eventStatus = cell.EventStatus;
-
-                var li = document.createElement("li");
-                li.setAttribute("class", "table-view-cell");
-                li.setAttribute("id", "event" + eventId);
-                li.setAttribute("onclick", "onEventListItemSelected('event" + eventId + "', " + eventLat + ", " + eventLon + ", '" + eventLocation + "');");
-
-                var link = document.createElement("a");
-                link.innerHTML = displayShortVersion(eventName, 20);
-
-                var loadButton = document.createElement("button");
-                loadButton.setAttribute("class", "btn btn-primary");
-                loadButton.setAttribute("onclick", "getEventById(" + eventId + ", viewEvent);");
-                loadButton.innerHTML = "Load";
-                link.appendChild(loadButton);
-
-                if (eventStatus == 1) {
-                    var editButton = document.createElement("button");
-                    editButton.setAttribute("class", "btn btn-primary");
-                    editButton.setAttribute("style", "margin-right: 60px;");
-                    editButton.setAttribute("onclick", "getEventById(" + eventId + ", editEvent);");
-                    editButton.innerHTML = "Edit";
-                    link.appendChild(editButton);
-
-                    var stopButton = document.createElement("button");
-                    stopButton.setAttribute("class", "btn btn-primary");
-                    stopButton.setAttribute("style", "margin-right: 112.5px;");
-                    stopButton.setAttribute("onclick", "showStopEventConfirm(" + eventId + ", 'Stop event', 'Are you sure to stop this event', 'Yes', 'No', onConfirmSelected);");
-                    stopButton.innerHTML = "Stop";
-                    link.appendChild(stopButton);
-                }
-
-                li.appendChild(link);
-                ulEvents.appendChild(li);
-
-                // save marker
-                if (!eventLat.trim() || !eventLon.trim()) {
-                    alert("Place is invalid");
-                } else {
-                    var key = eventLat + "/" + eventLon + "/" + eventLocation;
-                    if (savedMarkers[key] == null) {
-                        var eventDescription = eventName + "<br/>" + getHourName(eventDate.getHours(), eventDate.getMinutes());
-                        savedMarkers[key] = {};
-                        savedMarkers[key].eventDescription = eventDescription;
-                    }
-                }
-
-            }
-
-            reloadMarkers();
-
-            // load first place if any
-            var numberOfEvent = rs.rows.length;
-            if (numberOfEvent > 0) {
-                var cell = rs.rows.item(0);
-                var eventId = cell.EventId;
-                var eventLocation = cell.EventLocation;
-                var eventLat = cell.EventLat;
-                var eventLon = cell.EventLon;
-                onEventListItemSelected("event" + eventId, eventLat, eventLon, eventLocation);
-            }
+            refreshHomeUI(rs);
         }
     }
 
@@ -883,6 +926,47 @@
 
     function onButtonHomeClicked() {
         getListEvent(updateHomeUI);
+    }
+
+    var currentOrderEventDateDirection = 1;
+    var currentOrderEventNameDirection = 1;
+    function onOrderBoxValueChanged(fieldIndex) {
+        if (fieldIndex == 1) {
+            getListEventOrderBy(fieldIndex, currentOrderEventDateDirection, updateHomeUI);
+            currentOrderEventDateDirection = currentOrderEventDateDirection == 1 ? 2 : 1;
+        } else if (fieldIndex == 2) {
+            getListEventOrderBy(fieldIndex, currentOrderEventNameDirection, updateHomeUI);
+            currentOrderEventNameDirection = currentOrderEventNameDirection == 1 ? 2 : 1;
+        }
+
+        applyOrderForCombobox();
+    }
+
+    function onButtonSearchInRangeClicked() {
+        var txtFromDate = document.getElementById("txtFromDate").value;
+        var txtToDate = document.getElementById("txtToDate").value;
+
+        var isFromDateValid = true;
+        var fromDate = new Date(txtFromDate);
+        if (fromDate == "Invalid Date") {
+            isFromDateValid = false;
+        }
+
+        var isToDateValid = true;
+        var toDate = new Date(txtToDate);
+        if (toDate == "Invalid Date") {
+            isToDateValid = false;
+        }
+
+        if (!isFromDateValid) {
+            alert("From date is invalid!")
+        } else if (!isToDateValid) {
+            alert("To date is invalid!")
+        } else {
+            var fromDateInMilliseconds = fromDate.getTime() + (fromDate.getTimezoneOffset() * 60 * 1000);
+            var toDateInMilliseconds = toDate.getTime() + (toDate.getTimezoneOffset() * 60 * 1000);
+            getListEventInRange(fromDateInMilliseconds, toDateInMilliseconds, refreshHomeUI);
+        }
     }
 
     function onButtonShareClicked() {
@@ -922,9 +1006,9 @@
         }
 
         if (!txtAddEventLocation.trim()) {
-            errAddEventLocation.html("Event location is required!");
-            errAddEventLocation.toggle(true);
-            isValid = false;
+//            errAddEventLocation.html("Event location is required!");
+//            errAddEventLocation.toggle(true);
+//            isValid = false;
         } else {
             if (!locationLat.trim() || !locationLon.trim()) {
                 errAddEventLocation.html("Location is invalid, location must be selected from suggestion!");
@@ -997,7 +1081,11 @@
         }
 
         if (isValid) {
-            isEventExisted(locationLat, locationLon, txtAddEventName, txtAddEventOrg, function (rs) {
+            var parsedDate = new Date(document.getElementById("txtAddEventDate").value);
+            var selectedDate = parsedDate.getTime() + (parsedDate.getTimezoneOffset() * 60 * 1000);
+            var nextSelectedDate = selectedDate + (24 * 60 * 60 * 1000);
+
+            isEventExisted(selectedDate, nextSelectedDate, txtAddEventName, txtAddEventOrg, function (rs) {
                 stepManager["txtAddEventName"] = document.getElementById("txtAddEventName").value;
                 stepManager["txtAddEventLocation"] = document.getElementById("txtAddEventLocation").value;
                 stepManager["locationLat"] = document.getElementById("locationLat").value;
@@ -1023,7 +1111,7 @@
                     }
 
                     if (!isSameRecord) {
-                        errAddExisted.html("Adding new event was failed, may be due to: <br/> 1) An event was expected in this place. <br/> 2) Had an event with same both Organizer Name and Event Name already.");
+                        errAddExisted.html("An event with same <br/>1) Event Name<br/>2) Event Date<br/>3) Organizer Name <br/>was existed already.");
                         errAddExisted.toggle(true);
                         stepManager.step = 1;
                     }
@@ -1038,13 +1126,17 @@
         if (stepManager.step == 1) {
             validateForm();
         } else if (stepManager.step == 2) {
-            getListEvent(updateHomeUI);
+            if (selectedEventToUpdate != null) {
+                getEventById(selectedEventToUpdate.EventId, viewEvent);
+            } else {
+                getListEvent(updateHomeUI);
+            }
             stepManager = null;
         }
     }
 
     function onEventStopped() {
-        getListEvent(updateHomeUI);
+        updateReportControls(0);
     }
 
     function onButtonAddClicked() {
@@ -1052,7 +1144,7 @@
         prepareForm(true);
     }
 
-    function onConfirmSelected(buttonIndex) {
+    function onConfirmStopSelected(buttonIndex) {
         if (buttonIndex == 1) {
             var props = {};
             props.EventStatus = 0;
@@ -1061,21 +1153,45 @@
         }
     }
 
+    function onConfirmDeleteSelected(buttonIndex) {
+        if (buttonIndex == 1) {
+            alert("Function is building!")
+        }
+    }
+
+    function onButtonEditClicked() {
+        getEventById(selectedEventId, editEvent);
+    }
+
+    function onButtonStopClicked() {
+        showStopEventConfirm(selectedEventId, 'Stop event', 'Are you sure to stop this event', 'Yes', 'No', onConfirmStopSelected);
+    }
+
+    function onButtonDeleteClicked() {
+        showStopEventConfirm(selectedEventId, 'Delete event', 'Are you sure to delete this event', 'Yes', 'No', onConfirmDeleteSelected);
+    }
+
     function onFacebookButtonClick() {
-        alert("Function is building");
+        var imgList = [];
+        $(".loadedImg").each(function () {
+            imgList.push($(this).attr("src"));
+        });
+
+        window.plugins.socialsharing.shareViaFacebook('Message via Facebook',
+                imgList /* img */,
+                null /* url */,
+                function() {
+                    console.log('share ok');
+                },
+                function(errormsg) {
+                    alert(errormsg);
+                }
+        );
+
     }
 
     function onTwitterButtonClick() {
         alert("Function is building");
-    }
-
-    function onEventListItemSelected(selectorName, lat, lon, name) {
-        $('#ulEvents li').each(function() {
-            $(this).removeClass("selectedListItem");
-        });
-
-        $("#" + selectorName).addClass("selectedListItem");
-        centerMarker(lat, lon, name);
     }
 
     function deviceReady() {
@@ -1099,12 +1215,12 @@
 
         // init search button
         $('#txtSearchEvent').keyup(function(){
-            var searchText = $(this).val();
-            $('#ulEvents li').each(function() {
-                var currentLiText = $(this).text();
-                var showCurrentLi = currentLiText.indexOf(searchText) !== -1;
-                $(this).toggle(showCurrentLi);
-
+            var searchText = $(this).val().toLowerCase();
+            $('#eventRows div').each(function() {
+                var currentText = $(this).text().toLowerCase();
+                var attachInfo = $(this).attr("attach-info").toLowerCase();
+                var isVisible = (currentText.indexOf(searchText) != -1) || (attachInfo.indexOf(searchText) != -1);
+                $(this).toggle(isVisible);
             });
         });
 
@@ -1123,6 +1239,17 @@
         setTimeout(function(){
             getListEvent(updateHomeUI);
         }, 2000);
+
+        applyOrderForCombobox();
+    }
+
+    function applyOrderForCombobox() {
+        // apply order for commbobox
+        var orderDateText = currentOrderEventDateDirection == 1 ? "ASC" : "DESC";
+        $("#orderDate").html("Event Date<br/>" + orderDateText);
+
+        var orderNameText = currentOrderEventNameDirection == 1 ? "ASC" : "DESC";
+        $("#orderName").html("Event Name<br/>" + orderNameText);
     }
 
     /*

@@ -35,20 +35,27 @@
     </style>
 </head>
 <body>
-<div id="divEvents" class="content-padded" style="display: inline">
-    <input id="txtSearchEvent" type="search" placeholder="Search Event" style="display: inline;width: 80%">
-    <div class="dropdown" style="display: inline; width: 19%">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order
-            <span class="caret"></span></button>
-        <ul class="dropdown-menu">
-            <li><a href="#" id="orderDate" onclick="changeOrder(1);">Event Date</a></li>
-            <li><a href="#" id="orderName" onclick="changeOrder(2);">Event Name</a></li>
-        </ul>
-    </div>
-    <div id="divWrapperEvent" class="container-fluid">
-        <div id="eventRows" class="row"></div>
-    </div>
-</div>
+
+<label class="control-label col-sm-2" style="display:inline;width: auto;">Search by date:</label>
+<input id="txtEventFrom" class="form-control" type="date" placeholder="From Date">
+<input id="txtEventTo" class="form-control" type="date" style="display:inline; width: 19%" placeholder="To Date">
+<button id="btnSearchByDate" class="btn-positive" onclick="">Search</button>
+
+
+<!--<div id="divEvents" class="content-padded" style="display: inline">-->
+    <!--<input id="txtSearchEvent" type="search" placeholder="Search Event" style="display: inline;width: 80%">-->
+    <!--<div class="dropdown" style="display: inline; width: 19%">-->
+        <!--<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Order-->
+            <!--<span class="caret"></span></button>-->
+        <!--<ul class="dropdown-menu">-->
+            <!--<li><a href="#" id="orderDate" onclick="changeOrder(1);">Event Date</a></li>-->
+            <!--<li><a href="#" id="orderName" onclick="changeOrder(2);">Event Name</a></li>-->
+        <!--</ul>-->
+    <!--</div>-->
+    <!--<div id="divWrapperEvent" class="container-fluid">-->
+        <!--<div id="eventRows" class="row"></div>-->
+    <!--</div>-->
+<!--</div>-->
 <!--<div class="container-fluid">-->
     <!--<div class="row">-->
         <!--<div class="col-xs-4">Event Name</div>-->

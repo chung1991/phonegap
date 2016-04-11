@@ -12,6 +12,12 @@
         },
         "cordova-plugin-native-transitions": {
             "PACKAGE_NAME": "com.phonegap.example"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "com.phonegap.example"
+        },
+        "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "com.phonegap.example"
         }
     },
     "dependent_plugins": {}
