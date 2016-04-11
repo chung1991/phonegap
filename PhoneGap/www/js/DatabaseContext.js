@@ -138,6 +138,10 @@ function getEventById(eventId, callback) {
     );
 }
 
+function deleteEvent(eventId, callback) {
+
+}
+
 function updateEvent(eventId, props, callback) {
     var query = "UPDATE EventTBL SET ";
     var hasProps = false;

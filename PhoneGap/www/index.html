@@ -126,6 +126,9 @@
             <br>
             About a week left
         </h6>
+        <button id="btnDeleteEvent" type="button" onclick="onButtonDeleteClicked();" class="btn btn-danger">Delete</button>
+        <button id="btnEditEvent" type="button" onclick="onButtonEditClicked();" class="btn btn-primary">Edit</button>
+        <button id="btnStopEvent" type="button" onclick="onButtonStopClicked();" class="btn btn-danger">Stop</button>
     </div>
 
     <div id="divSlider" class="slider">
@@ -142,7 +145,7 @@
                         <button id="buttonCamera" class="btn-positive" onclick="takePicture();">Capture</button>
                     </td>
                     <td id="tdCommentBox">
-                        <input id="txtComment" type="text" placeholder="Your comment">
+                        <input id="txtComment" type="text" placeholder="Your textual report">
                     </td>
                     <td id="tdSendButton">
                         <button id="buttonComment" class="btn-positive" onclick="takeComment();">Send</button>
@@ -514,9 +517,30 @@
             updateDetailsUI(selectedEvent.EventName, eventDate);
         }
 
+        // update visibility of control buttons
+        updateReportControls(selectedEvent.EventStatus);
+
         getListImageReport(selectedEventId, updateImageReportUI);
         getListTextReport(selectedEventId, updateTextReportUI);
         setTemplate(templateNames.DETAILS);
+    }
+
+    function updateReportControls(eventStatus) {
+        if (eventStatus == 1) {
+            $("#btnDeleteEvent").toggle(false);
+            $("#btnEditEvent").toggle(true);
+            $("#btnStopEvent").toggle(true);
+            $("#buttonCamera").prop("disabled", false);
+            $("#buttonComment").prop("disabled", false);
+            $("#txtComment").prop("readonly", false);
+        } else {
+            $("#btnDeleteEvent").toggle(true);
+            $("#btnEditEvent").toggle(false);
+            $("#btnStopEvent").toggle(false);
+            $("#buttonCamera").prop("disabled", true);
+            $("#buttonComment").prop("disabled", true);
+            $("#txtComment").prop("readonly", true);
+        }
     }
 
     /**
@@ -741,7 +765,7 @@
 
             var div = document.createElement("div");
             div.setAttribute("class", "divNoteNotFound");
-            div.innerHTML = "Add a note now";
+            div.innerHTML = "Add a textual report now";
 
             li.appendChild(div);
             ulComments.appendChild(li);
@@ -799,7 +823,7 @@
 
             var span = document.createElement("span");
             span.setAttribute("class", "slide-text");
-            span.innerHTML = "Add a photo now";
+            span.innerHTML = "Add a photo report now";
 
             div.appendChild(img);
             div.appendChild(span);
@@ -1102,13 +1126,17 @@
         if (stepManager.step == 1) {
             validateForm();
         } else if (stepManager.step == 2) {
-            getListEvent(updateHomeUI);
+            if (selectedEventToUpdate != null) {
+                getEventById(selectedEventToUpdate.EventId, viewEvent);
+            } else {
+                getListEvent(updateHomeUI);
+            }
             stepManager = null;
         }
     }
 
     function onEventStopped() {
-        getListEvent(updateHomeUI);
+        updateReportControls(0);
     }
 
     function onButtonAddClicked() {
@@ -1116,13 +1144,31 @@
         prepareForm(true);
     }
 
-    function onConfirmSelected(buttonIndex) {
+    function onConfirmStopSelected(buttonIndex) {
         if (buttonIndex == 1) {
             var props = {};
             props.EventStatus = 0;
             updateEvent(selectedEventToStopId, props, onEventStopped);
             selectedEventToStopId = -1;
         }
+    }
+
+    function onConfirmDeleteSelected(buttonIndex) {
+        if (buttonIndex == 1) {
+            alert("Function is building!")
+        }
+    }
+
+    function onButtonEditClicked() {
+        getEventById(selectedEventId, editEvent);
+    }
+
+    function onButtonStopClicked() {
+        showStopEventConfirm(selectedEventId, 'Stop event', 'Are you sure to stop this event', 'Yes', 'No', onConfirmStopSelected);
+    }
+
+    function onButtonDeleteClicked() {
+        showStopEventConfirm(selectedEventId, 'Delete event', 'Are you sure to delete this event', 'Yes', 'No', onConfirmDeleteSelected);
     }
 
     function onFacebookButtonClick() {
@@ -1160,7 +1206,6 @@
                 var attachInfo = $(this).attr("attach-info").toLowerCase();
                 var isVisible = (currentText.indexOf(searchText) != -1) || (attachInfo.indexOf(searchText) != -1);
                 $(this).toggle(isVisible);
-
             });
         });
 
